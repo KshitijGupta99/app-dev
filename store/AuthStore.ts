@@ -21,7 +21,7 @@ type AuthStore = {
     isLoading: boolean;
     login: (Data : Data) => Promise<void>;
     logout: () => Promise<void>;
-    checkAuth: () => Promise<void>;
+    getUser: () => Promise<void>;
     signup : (Data : Data) => Promise<void>;
 };
 
@@ -81,7 +81,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         }
     },
 
-    checkAuth: async () => {
+    getUser: async () => {
         try {
             const token = await SecureStore.getItemAsync('authToken');
             if (!token) return;
