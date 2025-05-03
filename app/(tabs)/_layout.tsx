@@ -6,6 +6,7 @@ import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
+import { useAuthStore } from "@/store/AuthStore";
 
 const SelectedTab = ({ focused, icon, title }: any) => {
   if (focused) {

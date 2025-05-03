@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import getLocalData from '@/utils/getLocalData';
 
 type User = {
     _id: string;
@@ -19,10 +20,11 @@ type AuthStore = {
     authUser: User | null;
     token: string | null;
     isLoading: boolean;
-    login: (Data : Data) => Promise<void>;
+    initializeAuth: () => Promise<void>;
+    login: (Data: Data) => Promise<void>;
     logout: () => Promise<void>;
     getUser: () => Promise<void>;
-    signup : (Data : Data) => Promise<void>;
+    signup: (Data: Data) => Promise<void>;
 };
 
 const API = axios.create({
@@ -30,24 +32,35 @@ const API = axios.create({
     withCredentials: true,
 });
 
+
 export const useAuthStore = create<AuthStore>((set) => ({
     authUser: null,
     token: null,
     isLoading: false,
+    initializeAuth: async () => {
+        const localData = await getLocalData(); // Get data from local storage
+        if (localData) {
+            set({
+                authUser: localData.user,
+                token: localData.token,
+            });
+        }
+    },
 
-    signup: async (data)=>{
-        set({isLoading: true});
+
+    signup: async (data) => {
+        set({ isLoading: true });
         try {
             console.log(data)
             const res = await API.post("/auth/signup", data);
             const { user, token } = res.data;
             await SecureStore.setItemAsync('authToken', token);
-            set({authUser: res.data});
-            
-        } catch (error :any) {
+            set({ authUser: res.data });
+
+        } catch (error: any) {
             console.error('Signup failed:', error.response?.data?.message || error.message);
-        }finally{
-            set({isLoading: false});
+        } finally {
+            set({ isLoading: false });
         }
     },
 
@@ -57,13 +70,15 @@ export const useAuthStore = create<AuthStore>((set) => ({
             const res = await API.post('/auth/login', Data);
             const { token, _id, fullname, email } = res.data;
             console.log(fullname, email, token)
-            // Ensure token is a string before storing it
-            await SecureStore.setItemAsync('authToken', String(token));
             const user = {
-                _id,
                 fullname,
                 email,
+                _id,
             }
+            // Ensure token is a string before storing it
+            await SecureStore.setItemAsync('user', JSON.stringify(user));
+            await SecureStore.setItemAsync('authToken', String(token));
+
             set({ authUser: user, token });
         } catch (err: any) {
             console.error('Login failed:', err.response?.data?.message || err.message);

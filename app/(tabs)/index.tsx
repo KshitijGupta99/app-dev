@@ -3,12 +3,17 @@ import { Link, router } from "expo-router";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
 import SearchBar from "@/components/SearchBar";
+import { useAuthStore } from '@/store/AuthStore'
 
 
 export default function Index() {
+
+  const authStore = useAuthStore((state) => state);
+  const { authUser, token } = authStore;
   return (
     <View
     className="bg-primary flex-1" >
+      <Text className="text-white text-2xl font-bold text-center mt-10">Welcome {authUser?.fullname}</Text>
       <Image source={images.bg} className= "absolute w-full z-0" />
       <ScrollView className="flex-1 px-5"
         showsVerticalScrollIndicator={false}

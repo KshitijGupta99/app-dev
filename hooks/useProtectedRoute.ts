@@ -12,6 +12,8 @@ export const useProtectedRoute = () => {
     const task = InteractionManager.runAfterInteractions(() => {
       if (!authUser ) {
         router.replace("/login");
+      }else{
+        router.replace("/(tabs)"); // Redirect to the main app if authenticated
       }
     });
 
